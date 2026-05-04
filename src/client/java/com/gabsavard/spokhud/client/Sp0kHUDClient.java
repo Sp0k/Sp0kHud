@@ -113,7 +113,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 
 		// Legs
 		ItemStack legs = ArmorHelper.getLegs();
-		int legsX = screenWidth - iconWidth - iconWidth - x;
+		int legsX = screenWidth - iconMargin - iconWidth - x;
 		graphics.item(legs, legsX, y);
 
 		if (legs.isDamaged()) {
