@@ -4,6 +4,8 @@
 
 It is designed to keep important gameplay information visible in a clean, minimal way.
 
+![View of the HUD](assets/screenshots/hud_view.png)
+
 ## Features
 
 - Displays the player’s current block position
