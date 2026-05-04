@@ -42,3 +42,7 @@ Clone the repository:
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
 cd YOUR_REPOSITORY_NAME
+```
+
+## License
+Distributed under the Creative Common license. See [LICENSE](LICENSE) for more information.
