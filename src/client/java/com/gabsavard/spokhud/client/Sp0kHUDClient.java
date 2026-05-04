@@ -167,6 +167,27 @@ public class Sp0kHUDClient implements ClientModInitializer {
 					true
 			);
 		}
+
+		// Primary Hand tool
+		ItemStack tool = ArmorHelper.getPrimaryHand();
+		if (tool.isDamageableItem()) {
+			int toolX = screenWidth - (iconMargin * 4) - iconWidth - x;
+			graphics.item(tool, toolX, y);
+
+			if (tool.isDamaged()) {
+				String toolDurability = ArmorHelper.getDurabilityPercent(tool);
+				int toolDurWidth = minecraft.font.width(toolDurability);
+				int toolDurX = toolX + (iconWidth - toolDurWidth) / 2;
+				graphics.text(
+						minecraft.font,
+						toolDurability,
+						toolDurX,
+						y + 16,
+						ArmorHelper.getDurabilityColor(tool),
+						true
+				);
+			}
+		}
 	}
 
 	private static boolean isF3Open(Minecraft minecraft) {

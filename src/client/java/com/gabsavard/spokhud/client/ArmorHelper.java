@@ -45,6 +45,16 @@ public class ArmorHelper {
         return minecraft.player.getItemBySlot(EquipmentSlot.FEET);
     }
 
+    public static ItemStack getPrimaryHand() {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if (minecraft.player == null) {
+            return ItemStack.EMPTY;
+        }
+
+        return minecraft.player.getMainHandItem();
+    }
+
     public static String getDurabilityPercent(ItemStack stack) {
         // Non-damageable items do not have meaningful durability to display.
         if (stack.isEmpty() || !stack.isDamageableItem()) {
