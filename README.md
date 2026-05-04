@@ -1,6 +1,6 @@
-# Sp0k HUD+
+# Sp0k's HUD+
 
-**Sp0k HUD+** is a lightweight client-side Fabric mod that adds useful player information to the Minecraft HUD without opening the debug screen.
+**Sp0k's HUD+** is a lightweight client-side Fabric mod that adds useful player information to the Minecraft HUD without opening the debug screen.
 
 It is designed to keep important gameplay information visible in a clean, minimal way.
 
