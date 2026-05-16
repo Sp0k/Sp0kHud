@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.Font;
 
 public class Sp0kHUDClient implements ClientModInitializer {
 	public static final String MOD_ID = "spokhud";
@@ -22,33 +23,44 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		);
 	}
 
-	private static void renderLeftSide(Minecraft minecraft, GuiGraphicsExtractor graphics, int x, int y) {
+	private static void renderLeftSide(Minecraft minecraft, GuiGraphicsExtractor graphics, int x, int y,
+	                                   Sp0kHUDConfig config) {
 		// Position
-		int posX = minecraft.player.getBlockX();
-		int posY = minecraft.player.getBlockY();
-		int posZ = minecraft.player.getBlockZ();
-		graphics.text(
-				minecraft.font,
-				String.format("Position: %d, %d, %d", posX, posY, posZ),
-				x,
-				y,
-				0xFFFFFFFF,
-				true
-		);
+		if (config.showPosition) {
+			int posX = minecraft.player.getBlockX();
+			int posY = minecraft.player.getBlockY();
+			int posZ = minecraft.player.getBlockZ();
+			drawScaledText(
+					graphics,
+					minecraft.font,
+					String.format("Position: %d, %d, %d", posX, posY, posZ),
+					x,
+					y,
+					config.uiSize.scale,
+					0xFFFFFFFF,
+					true
+			);
+		}
 
 		// Biome
-		String biome = BiomeHelper.getPlayerBiomeId();
-		graphics.text(
-				minecraft.font,
-				String.format("Biome: %s", biome),
-				x,
-				y + 12,
-				0xFFFFFFFF,
-				true
-		);
+		if (config.showBiome) {
+			String biome = BiomeHelper.getPlayerBiomeId();
+			int offset = config.showPosition ? (int)(12 * config.uiSize.scale) : 0;
+			drawScaledText(
+					graphics,
+					minecraft.font,
+					String.format("Biome: %s", biome),
+					x,
+					y + offset,
+					config.uiSize.scale,
+					0xFFFFFFFF,
+					true
+			);
+		}
 	}
 
-	private static void renderCenter(Minecraft minecraft, GuiGraphicsExtractor graphics, int screenWidth, int y) {
+	private static void renderCenter(Minecraft minecraft, GuiGraphicsExtractor graphics, int screenWidth, int y,
+									 float scale) {
 		// Cardinal Direction
 		String cardinal = minecraft.player.getDirection().toString();
 		String direction = switch (cardinal) {
@@ -60,133 +72,82 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		};
 
 		int textWidth = minecraft.font.width(direction);
-		int centerX = (screenWidth - textWidth) / 2;
+		int scaledTextWidth = Math.round(textWidth * scale);
 
-		graphics.text(
+		int centerX = (screenWidth / 2) + scaledTextWidth;
+
+		drawScaledText(
+				graphics,
 				minecraft.font,
 				direction,
 				centerX,
 				y,
+				scale,
 				0xFFFFFFFF,
 				true
 		);
 
 		// Cardinal Direction Lines
+		int scaledLineLength = Math.round(24 * scale);
+		int scaledLineGap = Math.round(6 * scale);
+		int lineY = y + Math.round((minecraft.font.lineHeight * scale) / 2.0f);
+
 		graphics.horizontalLine(
-				centerX - 30,
-				centerX - 6,
-				y + (minecraft.font.lineHeight / 2),
+				centerX - scaledLineGap - scaledLineLength,
+				centerX - scaledLineGap,
+				lineY,
 				0xFFFFFFFF
 		);
 
 		graphics.horizontalLine(
-				centerX + textWidth + 6,
-				centerX + textWidth + 30,
-				y + (minecraft.font.lineHeight / 2),
+				centerX + scaledTextWidth + scaledLineGap,
+				centerX + scaledTextWidth + scaledLineGap + scaledLineLength,
+				lineY,
 				0xFFFFFFFF
 		);
 	}
 
 	private static void renderRightSide(Minecraft minecraft, GuiGraphicsExtractor graphics, int x,
-										int screenWidth, int y) {
-		int iconWidth = 15;
-		int iconMargin = iconWidth + 10;
+	                                    int screenWidth, int y, float scale) {
+		int iconSize = 16;
+		int gap = 10;
+
+		int scaledIconSize = Math.round(iconSize * scale);
+		int scaledGap = Math.round(gap * scale);
+		int slotSpacing = scaledIconSize + scaledGap;
 
 		// Feet
-		ItemStack boots = ArmorHelper.getFeet();
-		int bootX = screenWidth - iconWidth - x;
-		graphics.item(boots, bootX, y);
-
-		if (boots.isDamaged()) {
-			String bootsDurability = ArmorHelper.getDurabilityPercent(boots);
-			int bootsDurWidth = minecraft.font.width(bootsDurability);
-			int bootsDurX = bootX + (iconWidth - bootsDurWidth) / 2;
-			graphics.text(
-					minecraft.font,
-					bootsDurability,
-					bootsDurX,
-					y + 16,
-					ArmorHelper.getDurabilityColor(boots),
-					true
-			);
-		}
+		ItemStack feet = ArmorHelper.getFeet();
+		int feetX = screenWidth - scaledIconSize - x;
+		drawArmorSlot(minecraft, graphics, feet, feetX, y, scale);
 
 		// Legs
 		ItemStack legs = ArmorHelper.getLegs();
-		int legsX = screenWidth - iconMargin - iconWidth - x;
-		graphics.item(legs, legsX, y);
-
-		if (legs.isDamaged()) {
-			String legsDurability = ArmorHelper.getDurabilityPercent(legs);
-			int legsDurWidth = minecraft.font.width(legsDurability);
-			int legsDurX = legsX + (iconWidth - legsDurWidth) / 2;
-			graphics.text(
-					minecraft.font,
-					legsDurability,
-					legsDurX,
-					y + 16,
-					ArmorHelper.getDurabilityColor(legs),
-					true
-			);
-		}
+		int legsX = screenWidth - scaledIconSize - x - slotSpacing;
+		drawArmorSlot(minecraft, graphics, legs, legsX, y, scale);
 
 		// Chest
 		ItemStack chest = ArmorHelper.getChest();
-		int chestX = screenWidth - (iconMargin * 2) - iconWidth - x;
-		graphics.item(chest, chestX, y);
-
-		if (chest.isDamaged()) {
-			String chestDurability = ArmorHelper.getDurabilityPercent(chest);
-			int chestDurWidth = minecraft.font.width(chestDurability);
-			int chestDurX = chestX + (iconWidth - chestDurWidth) / 2;
-			graphics.text(
-					minecraft.font,
-					chestDurability,
-					chestDurX,
-					y + 16,
-					ArmorHelper.getDurabilityColor(chest),
-					true
-			);
-		}
+		int chestX = screenWidth - scaledIconSize - x - (slotSpacing * 2);
+		drawArmorSlot(minecraft, graphics, chest, chestX, y, scale);
 
 		// Helmet
 		ItemStack helmet = ArmorHelper.getHelmet();
-		int helmetX = screenWidth - (iconMargin * 3) - iconWidth - x;
-		graphics.item(helmet, helmetX, y);
+		int helmetX = screenWidth - scaledIconSize - x - (slotSpacing * 3);
+		drawArmorSlot(minecraft, graphics, helmet, helmetX, y, scale);
 
-		if (helmet.isDamaged()) {
-			String helmetDurability = ArmorHelper.getDurabilityPercent(helmet);
-			int helmetDurWidth = minecraft.font.width(helmetDurability);
-			int helmetDurX = helmetX + (iconWidth - helmetDurWidth) / 2;
-			graphics.text(
-					minecraft.font,
-					helmetDurability,
-					helmetDurX,
-					y + 16,
-					ArmorHelper.getDurabilityColor(helmet),
-					true
-			);
+		// Primary Hand
+		ItemStack primaryHand = ArmorHelper.getPrimaryHand();
+		if (primaryHand.isDamageableItem()) {
+			int primaryX = screenWidth - scaledIconSize - x - (slotSpacing * 4);
+			drawArmorSlot(minecraft, graphics, primaryHand, primaryX, y, scale);
 		}
 
-		// Primary Hand tool
-		ItemStack tool = ArmorHelper.getPrimaryHand();
-		if (tool.isDamageableItem()) {
-			int toolX = screenWidth - (iconMargin * 4) - iconWidth - x;
-			graphics.item(tool, toolX, y);
-
-			if (tool.isDamaged()) {
-				String toolDurability = ArmorHelper.getDurabilityPercent(tool);
-				int toolDurWidth = minecraft.font.width(toolDurability);
-				int toolDurX = toolX + (iconWidth - toolDurWidth) / 2;
-				graphics.text(
-						minecraft.font,
-						toolDurability,
-						toolDurX,
-						y + 16,
-						ArmorHelper.getDurabilityColor(tool),
-						true
-				);
-			}
+		// Offhand
+		ItemStack offHand = ArmorHelper.getSecondaryHand();
+		if (offHand.isDamageableItem()) {
+			int offHandX = screenWidth - scaledIconSize - x - (slotSpacing * 5);
+			drawArmorSlot(minecraft, graphics, offHand, offHandX, y, scale);
 		}
 	}
 
@@ -194,23 +155,113 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		return minecraft.getDebugOverlay().showDebugScreen();
 	}
 
+	private static void drawScaledText(
+			GuiGraphicsExtractor graphics,
+			Font font,
+			String text,
+			int x,
+			int y,
+			float scale,
+			int color,
+			boolean shadow
+	) {
+		graphics.pose().pushMatrix();
+
+		try {
+			graphics.pose().scale(scale, scale);
+
+			graphics.text(
+					font,
+					text,
+					Math.round(x / scale),
+					Math.round(y / scale),
+					color,
+					shadow
+			);
+		} finally {
+			graphics.pose().popMatrix();
+		}
+	}
+
+	private static void drawScaledItem(
+			GuiGraphicsExtractor graphics,
+			ItemStack stack,
+			int x,
+			int y,
+			float scale
+	) {
+		graphics.pose().pushMatrix();
+
+		try {
+			graphics.pose().scale(scale, scale);
+
+			graphics.item(
+					stack,
+					Math.round(x / scale),
+					Math.round(y / scale)
+			);
+		} finally {
+			graphics.pose().popMatrix();
+		}
+	}
+
+	private static void drawArmorSlot(
+			Minecraft minecraft,
+			GuiGraphicsExtractor graphics,
+			ItemStack stack,
+			int x,
+			int y,
+			float scale
+	) {
+		int iconSize = 16;
+		int scaledIconSize = Math.round(iconSize * scale);
+
+		drawScaledItem(graphics, stack, x, y, scale);
+
+		if (stack.isDamaged()) {
+			String durability = ArmorHelper.getDurabilityPercent(stack);
+
+			int durabilityWidth = Math.round(minecraft.font.width(durability) * scale);
+			int durabilityX = x + (scaledIconSize - durabilityWidth) / 2;
+			int durabilityY = y + scaledIconSize;
+
+			drawScaledText(
+					graphics,
+					minecraft.font,
+					durability,
+					durabilityX,
+					durabilityY,
+					scale,
+					ArmorHelper.getDurabilityColor(stack),
+					true
+			);
+		}
+	}
+
 	private static void renderHud(GuiGraphicsExtractor graphics, DeltaTracker tickCounter) {
 		Minecraft minecraft = Minecraft.getInstance();
 
 		if (minecraft.player == null || minecraft.level == null) return;
 
+		Sp0kHUDConfig config = Sp0kHUDConfig.get();
+
 		// Hide if F3 is open
 		if (isF3Open(minecraft)) return;
 
 		int screenWidth = minecraft.getWindow().getGuiScaledWidth();
-		int x = 6;
-		int y = 6;
+		int x = config.hudX;
+		int y = config.hudY;
 
-		renderLeftSide(minecraft, graphics, x, y);
-		renderCenter(minecraft, graphics, screenWidth, y);
+		renderLeftSide(minecraft, graphics, x, y, config);
 
-		// Shift armor icons down when potion effects are displayed.
-        int rightY = !minecraft.player.getActiveEffects().isEmpty() ? y + 20 : y;
-		renderRightSide(minecraft, graphics, x, screenWidth, rightY);
+		if (config.showDirection) {
+			renderCenter(minecraft, graphics, screenWidth, y, config.uiSize.scale);
+		}
+
+		if (config.showArmor) {
+			// Shift armor icons down when potion effects are displayed.
+			int rightY = !minecraft.player.getActiveEffects().isEmpty() ? y + 20 : y;
+			renderRightSide(minecraft, graphics, x, screenWidth, rightY, config.uiSize.scale);
+		}
 	}
 }
