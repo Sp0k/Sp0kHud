@@ -1,13 +1,34 @@
 package com.gabsavard.spokhud.client;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+
 public class Sp0kHUDConfigScreen extends Screen {
+    private static final int BUTTON_WIDTH = 180;
+    private static final int BUTTON_HEIGHT = 20;
+    private static final int ROW_SPACING = 24;
+
+    private static final int HUD_MIN = 0;
+    private static final int HUD_MAX = 100;
+
     private final Screen parent;
     private final Sp0kHUDConfig config;
+
+    private MenuPage page = MenuPage.MAIN;
+
+    private enum MenuPage {
+        MAIN,
+        LOCATION,
+        DIRECTION,
+        EQUIPMENT
+    }
 
     public Sp0kHUDConfigScreen(Screen parent) {
         super(Component.literal("Sp0k's HUD+ Options"));
@@ -18,82 +39,288 @@ public class Sp0kHUDConfigScreen extends Screen {
     @Override
     protected void init() {
         int centerX = this.width / 2;
-        int buttonWidth = 180;
-        int buttonHeight = 20;
-        int x = centerX - buttonWidth / 2;
+        int x = centerX - BUTTON_WIDTH / 2;
         int y = this.height / 4;
 
-        this.addRenderableWidget(Button.builder(
-                Component.literal("UI Size: " + config.uiSize.label),
+        switch (page) {
+            case MAIN -> initMainMenu(x, y);
+            case LOCATION -> initLocationMenu(x, y);
+            case DIRECTION -> initDirectionMenu(x, y);
+            case EQUIPMENT -> initEquipmentMenu(x, y);
+        }
+    }
+
+    private void initMainMenu(int x, int y) {
+        addButton(x, y,
+                "UI Size: " + config.uiSize.label,
                 button -> {
                     config.uiSize = config.uiSize.next();
                     Sp0kHUDConfig.save();
                     button.setMessage(Component.literal("UI Size: " + config.uiSize.label));
                 }
-        ).bounds(x, y, buttonWidth, buttonHeight).build());
+        );
 
-        this.addRenderableWidget(Button.builder(
-                Component.literal("Position: " + onOff(config.showPosition)),
-                button -> {
-                    config.showPosition = !config.showPosition;
+        addButton(x, y + ROW_SPACING,
+                "Location Information...",
+                button -> openPage(MenuPage.LOCATION)
+        );
+
+        addButton(x, y + ROW_SPACING * 2,
+                "Direction...",
+                button -> openPage(MenuPage.DIRECTION)
+        );
+
+        addButton(x, y + ROW_SPACING * 3,
+                "Equipment HUD...",
+                button -> openPage(MenuPage.EQUIPMENT)
+        );
+
+        this.addRenderableWidget(new IntSlider(
+                x,
+                y + ROW_SPACING * 4,
+                BUTTON_WIDTH,
+                BUTTON_HEIGHT,
+                "HUD X",
+                HUD_MIN,
+                HUD_MAX,
+                config.hudX,
+                value -> {
+                    config.hudX = value;
                     Sp0kHUDConfig.save();
-                    button.setMessage(Component.literal("Position: " + onOff(config.showPosition)));
                 }
-        ).bounds(x, y + 24, buttonWidth, buttonHeight).build());
+        ));
 
-        this.addRenderableWidget(Button.builder(
-                Component.literal("Biome: " + onOff(config.showBiome)),
-                button -> {
-                    config.showBiome = !config.showBiome;
+        this.addRenderableWidget(new IntSlider(
+                x,
+                y + ROW_SPACING * 5,
+                BUTTON_WIDTH,
+                BUTTON_HEIGHT,
+                "HUD Y",
+                HUD_MIN,
+                HUD_MAX,
+                config.hudY,
+                value -> {
+                    config.hudY = value;
                     Sp0kHUDConfig.save();
-                    button.setMessage(Component.literal("Biome: " + onOff(config.showBiome)));
                 }
-        ).bounds(x, y + 48, buttonWidth, buttonHeight).build());
+        ));
 
-        this.addRenderableWidget(Button.builder(
-                Component.literal("Direction: " + onOff(config.showDirection)),
-                button -> {
-                    config.showDirection = !config.showDirection;
-                    Sp0kHUDConfig.save();
-                    button.setMessage(Component.literal("Direction: " + onOff(config.showDirection)));
-                }
-        ).bounds(x, y + 72, buttonWidth, buttonHeight).build());
-
-        this.addRenderableWidget(Button.builder(
-                Component.literal("Armor HUD: " + onOff(config.showArmor)),
-                button -> {
-                    config.showArmor = !config.showArmor;
-                    Sp0kHUDConfig.save();
-                    button.setMessage(Component.literal("Armor HUD: " + onOff(config.showArmor)));
-                }
-        ).bounds(x, y + 96, buttonWidth, buttonHeight).build());
-
-        this.addRenderableWidget(Button.builder(
-                Component.literal("Done"),
+        addButton(x, y + ROW_SPACING * 7,
+                "Done",
                 button -> this.minecraft.setScreen(parent)
-        ).bounds(x, y + 136, buttonWidth, buttonHeight).build());
+        );
+    }
+
+    private void initLocationMenu(int x, int y) {
+        addToggle(
+                x,
+                y,
+                "Location Info",
+                () -> config.showLocationInfo,
+                value -> config.showLocationInfo = value
+        );
+
+        addToggle(
+                x,
+                y + ROW_SPACING,
+                "Position",
+                () -> config.showPosition,
+                value -> config.showPosition = value
+        );
+
+        addToggle(
+                x,
+                y + ROW_SPACING * 2,
+                "Biome",
+                () -> config.showBiome,
+                value -> config.showBiome = value
+        );
+
+        addButton(x, y + ROW_SPACING * 4,
+                "Back",
+                button -> openPage(MenuPage.MAIN)
+        );
+    }
+
+    private void initDirectionMenu(int x, int y) {
+        addToggle(
+                x,
+                y,
+                "Direction Display",
+                () -> config.showDirection,
+                value -> config.showDirection = value
+        );
+
+        addToggle(
+                x,
+                y + ROW_SPACING * 2,
+                "Direction Lines",
+                () -> config.showDirectionLines,
+                value -> config.showDirectionLines = value
+        );
+
+        addButton(x, y + ROW_SPACING * 4,
+                "Back",
+                button -> openPage(MenuPage.MAIN)
+        );
+    }
+
+    private void initEquipmentMenu(int x, int y) {
+        addToggle(
+                x,
+                y,
+                "Equipment Display",
+                () -> config.showEquipmentDisplay,
+                value -> config.showEquipmentDisplay = value
+        );
+
+        addToggle(
+                x,
+                y + ROW_SPACING,
+                "Armor",
+                () -> config.showArmor,
+                value -> config.showArmor = value
+        );
+
+        addToggle(
+                x,
+                y + ROW_SPACING * 2,
+                "Tools",
+                () -> config.showTools,
+                value -> config.showTools = value
+        );
+
+        addButton(x, y + ROW_SPACING * 4,
+                "Back",
+                button -> openPage(MenuPage.MAIN)
+        );
+    }
+
+    private void addButton(int x, int y, String text, Button.OnPress onPress) {
+        this.addRenderableWidget(Button.builder(
+                Component.literal(text),
+                onPress
+        ).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+    }
+
+    private void addToggle(
+            int x,
+            int y,
+            String label,
+            BooleanSupplier getter,
+            Consumer<Boolean> setter
+    ) {
+        this.addRenderableWidget(Button.builder(
+                Component.literal(label + ": " + onOff(getter.getAsBoolean())),
+                button -> {
+                    boolean newValue = !getter.getAsBoolean();
+                    setter.accept(newValue);
+                    Sp0kHUDConfig.save();
+
+                    button.setMessage(Component.literal(label + ": " + onOff(newValue)));
+                }
+        ).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+    }
+
+    private void openPage(MenuPage page) {
+        this.page = page;
+        this.clearWidgets();
+        this.init();
     }
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         super.extractRenderState(graphics, mouseX, mouseY, delta);
 
+        String title = getPageTitle();
+
         graphics.text(
                 this.font,
-                this.title.getString(),
-                (this.width - this.font.width(this.title)) / 2,
+                title,
+                (this.width - this.font.width(title)) / 2,
                 20,
                 0xFFFFFFFF,
                 true
         );
     }
 
+    private String getPageTitle() {
+        return switch (page) {
+            case MAIN -> "Sp0k's HUD+ Options";
+            case LOCATION -> "Location Information";
+            case DIRECTION -> "Direction";
+            case EQUIPMENT -> "Equipment HUD";
+        };
+    }
+
     @Override
     public void onClose() {
-        this.minecraft.setScreen(parent);
+        if (page != MenuPage.MAIN) {
+            openPage(MenuPage.MAIN);
+        } else {
+            this.minecraft.setScreen(parent);
+        }
     }
 
     private static String onOff(boolean value) {
         return value ? "ON" : "OFF";
+    }
+
+    private static class IntSlider extends AbstractSliderButton {
+        private final String label;
+        private final int min;
+        private final int max;
+        private final IntConsumer setter;
+
+        public IntSlider(
+                int x,
+                int y,
+                int width,
+                int height,
+                String label,
+                int min,
+                int max,
+                int currentValue,
+                IntConsumer setter
+        ) {
+            super(
+                    x,
+                    y,
+                    width,
+                    height,
+                    Component.literal(label + ": " + currentValue),
+                    valueToSliderValue(min, max, currentValue)
+            );
+
+            this.label = label;
+            this.min = min;
+            this.max = max;
+            this.setter = setter;
+
+            updateMessage();
+        }
+
+        @Override
+        protected void updateMessage() {
+            this.setMessage(Component.literal(label + ": " + getIntValue()));
+        }
+
+        @Override
+        protected void applyValue() {
+            setter.accept(getIntValue());
+        }
+
+        private int getIntValue() {
+            return min + (int) Math.round(this.value * (max - min));
+        }
+
+        private static double valueToSliderValue(int min, int max, int value) {
+            if (max <= min) {
+                return 0.0D;
+            }
+
+            int clamped = Math.max(min, Math.min(max, value));
+            return (double) (clamped - min) / (double) (max - min);
+        }
     }
 }

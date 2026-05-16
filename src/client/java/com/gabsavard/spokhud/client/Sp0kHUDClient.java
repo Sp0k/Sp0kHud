@@ -60,7 +60,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 	}
 
 	private static void renderCenter(Minecraft minecraft, GuiGraphicsExtractor graphics, int screenWidth, int y,
-									 float scale) {
+									 Sp0kHUDConfig config) {
 		// Cardinal Direction
 		String cardinal = minecraft.player.getDirection().toString();
 		String direction = switch (cardinal) {
@@ -72,7 +72,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		};
 
 		int textWidth = minecraft.font.width(direction);
-		int scaledTextWidth = Math.round(textWidth * scale);
+		int scaledTextWidth = Math.round(textWidth * config.uiSize.scale);
 
 		int centerX = (screenWidth / 2) + scaledTextWidth;
 
@@ -82,72 +82,82 @@ public class Sp0kHUDClient implements ClientModInitializer {
 				direction,
 				centerX,
 				y,
-				scale,
+				config.uiSize.scale,
 				0xFFFFFFFF,
 				true
 		);
 
 		// Cardinal Direction Lines
-		int scaledLineLength = Math.round(24 * scale);
-		int scaledLineGap = Math.round(6 * scale);
-		int lineY = y + Math.round((minecraft.font.lineHeight * scale) / 2.0f);
+		if (config.showDirectionLines) {
+			int scaledLineLength = Math.round(24 * config.uiSize.scale);
+			int scaledLineGap = Math.round(6 * config.uiSize.scale);
+			int lineY = y + Math.round((minecraft.font.lineHeight * config.uiSize.scale) / 2.0f);
 
-		graphics.horizontalLine(
-				centerX - scaledLineGap - scaledLineLength,
-				centerX - scaledLineGap,
-				lineY,
-				0xFFFFFFFF
-		);
+			graphics.horizontalLine(
+					centerX - scaledLineGap - scaledLineLength,
+					centerX - scaledLineGap,
+					lineY,
+					0xFFFFFFFF
+			);
 
-		graphics.horizontalLine(
-				centerX + scaledTextWidth + scaledLineGap,
-				centerX + scaledTextWidth + scaledLineGap + scaledLineLength,
-				lineY,
-				0xFFFFFFFF
-		);
+			graphics.horizontalLine(
+					centerX + scaledTextWidth + scaledLineGap,
+					centerX + scaledTextWidth + scaledLineGap + scaledLineLength,
+					lineY,
+					0xFFFFFFFF
+			);
+		}
 	}
 
 	private static void renderRightSide(Minecraft minecraft, GuiGraphicsExtractor graphics, int x,
-	                                    int screenWidth, int y, float scale) {
+	                                    int screenWidth, int y, Sp0kHUDConfig config) {
 		int iconSize = 16;
 		int gap = 10;
 
-		int scaledIconSize = Math.round(iconSize * scale);
-		int scaledGap = Math.round(gap * scale);
+		int scaledIconSize = Math.round(iconSize * config.uiSize.scale);
+		int scaledGap = Math.round(gap * config.uiSize.scale);
 		int slotSpacing = scaledIconSize + scaledGap;
 
-		// Feet
-		ItemStack feet = ArmorHelper.getFeet();
-		int feetX = screenWidth - scaledIconSize - x;
-		drawArmorSlot(minecraft, graphics, feet, feetX, y, scale);
+		if (config.showArmor) {
+			// Feet
+			ItemStack feet = ArmorHelper.getFeet();
+			int feetX = screenWidth - scaledIconSize - x;
+			drawArmorSlot(minecraft, graphics, feet, feetX, y, config.uiSize.scale);
 
-		// Legs
-		ItemStack legs = ArmorHelper.getLegs();
-		int legsX = screenWidth - scaledIconSize - x - slotSpacing;
-		drawArmorSlot(minecraft, graphics, legs, legsX, y, scale);
+			// Legs
+			ItemStack legs = ArmorHelper.getLegs();
+			int legsX = screenWidth - scaledIconSize - x - slotSpacing;
+			drawArmorSlot(minecraft, graphics, legs, legsX, y, config.uiSize.scale);
 
-		// Chest
-		ItemStack chest = ArmorHelper.getChest();
-		int chestX = screenWidth - scaledIconSize - x - (slotSpacing * 2);
-		drawArmorSlot(minecraft, graphics, chest, chestX, y, scale);
+			// Chest
+			ItemStack chest = ArmorHelper.getChest();
+			int chestX = screenWidth - scaledIconSize - x - (slotSpacing * 2);
+			drawArmorSlot(minecraft, graphics, chest, chestX, y, config.uiSize.scale);
 
-		// Helmet
-		ItemStack helmet = ArmorHelper.getHelmet();
-		int helmetX = screenWidth - scaledIconSize - x - (slotSpacing * 3);
-		drawArmorSlot(minecraft, graphics, helmet, helmetX, y, scale);
-
-		// Primary Hand
-		ItemStack primaryHand = ArmorHelper.getPrimaryHand();
-		if (primaryHand.isDamageableItem()) {
-			int primaryX = screenWidth - scaledIconSize - x - (slotSpacing * 4);
-			drawArmorSlot(minecraft, graphics, primaryHand, primaryX, y, scale);
+			// Helmet
+			ItemStack helmet = ArmorHelper.getHelmet();
+			int helmetX = screenWidth - scaledIconSize - x - (slotSpacing * 3);
+			drawArmorSlot(minecraft, graphics, helmet, helmetX, y, config.uiSize.scale);
 		}
 
-		// Offhand
-		ItemStack offHand = ArmorHelper.getSecondaryHand();
-		if (offHand.isDamageableItem()) {
-			int offHandX = screenWidth - scaledIconSize - x - (slotSpacing * 5);
-			drawArmorSlot(minecraft, graphics, offHand, offHandX, y, scale);
+		if (config.showTools) {
+			int spacingAmount = config.showArmor ? 4 : 0;
+
+			// Primary Hand
+			ItemStack primaryHand = ArmorHelper.getPrimaryHand();
+			if (primaryHand.isDamageableItem()) {
+				int primaryX = screenWidth - scaledIconSize - x - (slotSpacing * spacingAmount);
+				drawArmorSlot(minecraft, graphics, primaryHand, primaryX, y, config.uiSize.scale);
+			}
+
+			spacingAmount++;
+
+			// Offhand
+			ItemStack offHand = ArmorHelper.getSecondaryHand();
+			if (offHand.isDamageableItem()) {
+				int offHandX = screenWidth - scaledIconSize - x - (slotSpacing * spacingAmount);
+				drawArmorSlot(minecraft, graphics, offHand, offHandX, y, config.uiSize.scale);
+			}
 		}
 	}
 
@@ -252,16 +262,18 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		int x = config.hudX;
 		int y = config.hudY;
 
-		renderLeftSide(minecraft, graphics, x, y, config);
-
-		if (config.showDirection) {
-			renderCenter(minecraft, graphics, screenWidth, y, config.uiSize.scale);
+		if (config.showLocationInfo) {
+			renderLeftSide(minecraft, graphics, x, y, config);
 		}
 
-		if (config.showArmor) {
+		if (config.showDirection) {
+			renderCenter(minecraft, graphics, screenWidth, y, config);
+		}
+
+		if (config.showEquipmentDisplay) {
 			// Shift armor icons down when potion effects are displayed.
 			int rightY = !minecraft.player.getActiveEffects().isEmpty() ? y + 20 : y;
-			renderRightSide(minecraft, graphics, x, screenWidth, rightY, config.uiSize.scale);
+			renderRightSide(minecraft, graphics, x, screenWidth, rightY, config);
 		}
 	}
 }

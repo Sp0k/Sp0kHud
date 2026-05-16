@@ -31,10 +31,17 @@ public class Sp0kHUDConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("spokhud.json");
 
+    public boolean showLocationInfo = true;
     public boolean showPosition = true;
     public boolean showBiome = true;
+
     public boolean showDirection = true;
+    public boolean showDirectionLines = true;
+
+    public boolean showEquipmentDisplay = true;
     public boolean showArmor = true;
+    public boolean showTools = true;
+
     public UiSize uiSize = UiSize.MEDIUM;
 
     public int hudX = 6;
