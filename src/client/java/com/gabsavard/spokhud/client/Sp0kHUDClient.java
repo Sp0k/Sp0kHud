@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.gui.Font;
 
 public class Sp0kHUDClient implements ClientModInitializer {
-	public static final String MOD_ID = "spokhud";
+	public static final String MOD_ID = "spok-hud";
 
 	@Override
 	public void onInitializeClient() {

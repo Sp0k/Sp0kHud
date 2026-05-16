@@ -2,14 +2,14 @@
 	"schemaVersion": 1,
 	"id": "sp0k-hud",
 	"version": "${version}",
-	"name": "Sp0k HUD+",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Sp0k's HUD+",
+	"description": "A lightweight client-side HUD mod for Minecraft that displays useful information to the player.",
 	"authors": [
-		"Me!"
+		"Sp0k_"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://gabsavard.com/",
+		"sources": "https://github.com/Sp0k/Sp0kHud"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/sp0k-hud/icon.png",
