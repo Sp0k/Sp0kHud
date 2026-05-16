@@ -81,6 +81,11 @@ public class ArmorHelper {
         return String.format("%d%%", percent);
     }
 
+    public static String getDurabilityHits(ItemStack stack) {
+        int remaining = stack.getMaxDamage() - stack.getDamageValue();
+        return String.valueOf(remaining);
+    }
+
     public static int getDurabilityColor(ItemStack stack) {
         if (stack.isEmpty() || !stack.isDamageableItem()) {
             return 0xFFFFFFFF;

@@ -28,6 +28,21 @@ public class Sp0kHUDConfig {
         }
     }
 
+    public enum DurationType {
+        PERCENTAGE("Percentage"),
+        HITS("Hits");
+
+        public final String label;
+
+        DurationType(String label) {
+            this.label = label;
+        }
+
+        public DurationType next() {
+            DurationType[] values = values();
+            return values[(this.ordinal() + 1) % values.length];
+        }
+    }
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("spokhud.json");
 
@@ -41,6 +56,7 @@ public class Sp0kHUDConfig {
     public boolean showEquipmentDisplay = true;
     public boolean showArmor = true;
     public boolean showTools = true;
+    public DurationType durationType = DurationType.PERCENTAGE;
 
     public UiSize uiSize = UiSize.MEDIUM;
 

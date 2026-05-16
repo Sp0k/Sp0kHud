@@ -31,7 +31,7 @@ public class Sp0kHUDConfigScreen extends Screen {
     }
 
     public Sp0kHUDConfigScreen(Screen parent) {
-        super(Component.literal("Sp0k's HUD+ Options"));
+        super(Component.literal("Sp0k's HUD+ Settings"));
         this.parent = parent;
         this.config = Sp0kHUDConfig.get();
     }
@@ -190,12 +190,25 @@ public class Sp0kHUDConfigScreen extends Screen {
                 value -> config.showTools = value
         );
 
-        addButton(x, y + ROW_SPACING * 4,
+        addButton(
+                x,
+                y + ROW_SPACING * 3,
+                "Durability: " + config.durationType.label,
+                button -> {
+                    config.durationType = config.durationType.next();
+                    Sp0kHUDConfig.save();
+
+                    button.setMessage(Component.literal(
+                            "Durability: " + config.durationType.label
+                    ));
+                }
+        );
+
+        addButton(x, y + ROW_SPACING * 5,
                 "Back",
                 button -> openPage(MenuPage.MAIN)
         );
     }
-
     private void addButton(int x, int y, String text, Button.OnPress onPress) {
         this.addRenderableWidget(Button.builder(
                 Component.literal(text),

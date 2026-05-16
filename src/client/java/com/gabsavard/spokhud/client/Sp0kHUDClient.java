@@ -122,22 +122,22 @@ public class Sp0kHUDClient implements ClientModInitializer {
 			// Feet
 			ItemStack feet = ArmorHelper.getFeet();
 			int feetX = screenWidth - scaledIconSize - x;
-			drawArmorSlot(minecraft, graphics, feet, feetX, y, config.uiSize.scale);
+			drawArmorSlot(minecraft, graphics, feet, feetX, y, config);
 
 			// Legs
 			ItemStack legs = ArmorHelper.getLegs();
 			int legsX = screenWidth - scaledIconSize - x - slotSpacing;
-			drawArmorSlot(minecraft, graphics, legs, legsX, y, config.uiSize.scale);
+			drawArmorSlot(minecraft, graphics, legs, legsX, y, config);
 
 			// Chest
 			ItemStack chest = ArmorHelper.getChest();
 			int chestX = screenWidth - scaledIconSize - x - (slotSpacing * 2);
-			drawArmorSlot(minecraft, graphics, chest, chestX, y, config.uiSize.scale);
+			drawArmorSlot(minecraft, graphics, chest, chestX, y, config);
 
 			// Helmet
 			ItemStack helmet = ArmorHelper.getHelmet();
 			int helmetX = screenWidth - scaledIconSize - x - (slotSpacing * 3);
-			drawArmorSlot(minecraft, graphics, helmet, helmetX, y, config.uiSize.scale);
+			drawArmorSlot(minecraft, graphics, helmet, helmetX, y, config);
 		}
 
 		if (config.showTools) {
@@ -147,7 +147,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 			ItemStack primaryHand = ArmorHelper.getPrimaryHand();
 			if (primaryHand.isDamageableItem()) {
 				int primaryX = screenWidth - scaledIconSize - x - (slotSpacing * spacingAmount);
-				drawArmorSlot(minecraft, graphics, primaryHand, primaryX, y, config.uiSize.scale);
+				drawArmorSlot(minecraft, graphics, primaryHand, primaryX, y, config);
 			}
 
 			spacingAmount++;
@@ -156,7 +156,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 			ItemStack offHand = ArmorHelper.getSecondaryHand();
 			if (offHand.isDamageableItem()) {
 				int offHandX = screenWidth - scaledIconSize - x - (slotSpacing * spacingAmount);
-				drawArmorSlot(minecraft, graphics, offHand, offHandX, y, config.uiSize.scale);
+				drawArmorSlot(minecraft, graphics, offHand, offHandX, y, config);
 			}
 		}
 	}
@@ -165,16 +165,15 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		return minecraft.getDebugOverlay().showDebugScreen();
 	}
 
-	private static void drawScaledText(
-			GuiGraphicsExtractor graphics,
-			Font font,
-			String text,
-			int x,
-			int y,
-			float scale,
-			int color,
-			boolean shadow
-	) {
+	private static String getDurabilityText(ItemStack stack, Sp0kHUDConfig config) {
+		return switch (config.durationType) {
+			case PERCENTAGE -> ArmorHelper.getDurabilityPercent(stack);
+			case HITS -> ArmorHelper.getDurabilityHits(stack);
+		};
+	}
+
+	private static void drawScaledText(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, float scale,
+			int color, boolean shadow) {
 		graphics.pose().pushMatrix();
 
 		try {
@@ -193,13 +192,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		}
 	}
 
-	private static void drawScaledItem(
-			GuiGraphicsExtractor graphics,
-			ItemStack stack,
-			int x,
-			int y,
-			float scale
-	) {
+	private static void drawScaledItem(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y, float scale) {
 		graphics.pose().pushMatrix();
 
 		try {
@@ -215,23 +208,17 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		}
 	}
 
-	private static void drawArmorSlot(
-			Minecraft minecraft,
-			GuiGraphicsExtractor graphics,
-			ItemStack stack,
-			int x,
-			int y,
-			float scale
-	) {
+	private static void drawArmorSlot(Minecraft minecraft, GuiGraphicsExtractor graphics, ItemStack stack, int x, int y,
+			Sp0kHUDConfig config) {
 		int iconSize = 16;
-		int scaledIconSize = Math.round(iconSize * scale);
+		int scaledIconSize = Math.round(iconSize * config.uiSize.scale);
 
-		drawScaledItem(graphics, stack, x, y, scale);
+		drawScaledItem(graphics, stack, x, y, config.uiSize.scale);
 
 		if (stack.isDamaged()) {
-			String durability = ArmorHelper.getDurabilityPercent(stack);
+			String durability = getDurabilityText(stack, config);
 
-			int durabilityWidth = Math.round(minecraft.font.width(durability) * scale);
+			int durabilityWidth = Math.round(minecraft.font.width(durability) * config.uiSize.scale);
 			int durabilityX = x + (scaledIconSize - durabilityWidth) / 2;
 			int durabilityY = y + scaledIconSize;
 
@@ -241,7 +228,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 					durability,
 					durabilityX,
 					durabilityY,
-					scale,
+					config.uiSize.scale,
 					ArmorHelper.getDurabilityColor(stack),
 					true
 			);
