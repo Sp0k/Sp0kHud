@@ -32,6 +32,7 @@ It is designed to keep important gameplay information visible in a clean, minima
 - Allows HUD offset customization with `hudX` and `hudY`
 - Hides the custom HUD when the vanilla F3 debug screen is open
 - Moves the equipment HUD down when active status effects are visible to avoid overlap
+- Indicator when the player is in a slime chunk
 
 ## Configuration
 
@@ -47,12 +48,14 @@ The configuration screen is organized into submenus:
 - Location Information submenu
 - Direction submenu
 - Equipment HUD submenu
+- Toggle showing the HUD while F3 is open
 
 ### Location Information
 
 - Toggle the full location information display
 - Toggle position display
 - Toggle biome display
+- Toggle slime chunk indicator
 
 ### Direction
 
@@ -74,7 +77,7 @@ The config file is generated automatically at:
 
 ## Requirements
 
-- Minecraft `26.1.2`
+- Minecraft `26.2`
 - Fabric Loader
 - Fabric API
 - Java `25`
@@ -87,7 +90,7 @@ The config file is generated automatically at:
 
 ## Installation
 
-1. Install Fabric Loader for Minecraft `26.1.2`.
+1. Install Fabric Loader for Minecraft `26.2`.
 2. Install the matching Fabric API version.
 3. Optional: install Mod Menu if you want to configure the HUD in-game.
 4. Download the latest `.jar` release of **Sp0k's HUD+**.

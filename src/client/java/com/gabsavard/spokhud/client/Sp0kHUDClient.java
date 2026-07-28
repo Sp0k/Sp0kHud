@@ -196,7 +196,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 	}
 
 	private static boolean isF3Open(Minecraft minecraft) {
-		return minecraft.getDebugOverlay().showDebugScreen();
+		return minecraft.gui.hud.getDebugOverlay().showDebugScreen();
 	}
 
 	private static String getDurabilityText(ItemStack stack, Sp0kHUDConfig config) {

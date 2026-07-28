@@ -117,7 +117,7 @@ public class Sp0kHUDConfigScreen extends Screen {
 
         addButton(x, y + ROW_SPACING * 6,
                 "Done",
-                button -> this.minecraft.setScreen(parent)
+                button -> this.minecraft.gui.setScreen(parent)
         );
     }
 
@@ -315,7 +315,7 @@ public class Sp0kHUDConfigScreen extends Screen {
         if (page != MenuPage.MAIN) {
             openPage(MenuPage.MAIN);
         } else {
-            this.minecraft.setScreen(parent);
+            this.minecraft.gui.setScreen(parent);
         }
     }
 
