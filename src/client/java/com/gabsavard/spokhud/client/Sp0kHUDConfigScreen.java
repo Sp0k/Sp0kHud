@@ -125,12 +125,12 @@ public class Sp0kHUDConfigScreen extends Screen {
         addToggle(
                 x,
                 y,
-                "Location Info",
+                "Display Info",
                 () -> config.showLocationInfo,
                 value -> config.showLocationInfo = value
         );
 
-        addToggle(
+        addSmallToggle(
                 x,
                 y + ROW_SPACING,
                 "Position",
@@ -138,12 +138,20 @@ public class Sp0kHUDConfigScreen extends Screen {
                 value -> config.showPosition = value
         );
 
-        addToggle(
-                x,
-                y + ROW_SPACING * 2,
+        addSmallToggle(
+                x + (BUTTON_WIDTH / 2) + 3,
+                y + ROW_SPACING,
                 "Biome",
                 () -> config.showBiome,
                 value -> config.showBiome = value
+        );
+
+        addSmallToggle(
+                x,
+                y + ROW_SPACING * 2,
+                "Slime Chunk",
+                () -> config.showSlimeChunkIndicator,
+                value -> config.showSlimeChunkIndicator = value
         );
 
         addButton(x, y + ROW_SPACING * 4,

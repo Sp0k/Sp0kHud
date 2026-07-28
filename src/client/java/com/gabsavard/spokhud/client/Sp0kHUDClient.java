@@ -1,5 +1,6 @@
 package com.gabsavard.spokhud.client;
 
+import com.gabsavard.spokhud.Sp0kHUD;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -12,7 +13,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.gui.Font;
 
 public class Sp0kHUDClient implements ClientModInitializer {
-	public static final String MOD_ID = "spok-hud";
+	public static final String MOD_ID = Sp0kHUD.MOD_ID;
+
+	private static final Identifier SLIME_CHUNK_ICON =
+			Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/slime_icon.png");
 
 	@Override
 	public void onInitializeClient() {
@@ -23,40 +27,70 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		);
 	}
 
-	private static void renderLeftSide(Minecraft minecraft, GuiGraphicsExtractor graphics, int x, int y,
-	                                   Sp0kHUDConfig config) {
+	private static void renderLeftSide(
+			Minecraft minecraft,
+			GuiGraphicsExtractor graphics,
+			int x,
+			int y,
+			Sp0kHUDConfig config
+	) {
+		int currentY = y;
+		int lineSpacing = Math.round(12 * config.uiSize.scale);
+
 		// Position
 		if (config.showPosition) {
 			int posX = minecraft.player.getBlockX();
 			int posY = minecraft.player.getBlockY();
 			int posZ = minecraft.player.getBlockZ();
+
 			drawScaledText(
 					graphics,
 					minecraft.font,
-					String.format("Position: %d, %d, %d", posX, posY, posZ),
+					String.format(
+							"Position: %d, %d, %d",
+							posX,
+							posY,
+							posZ
+					),
 					x,
-					y,
+					currentY,
 					config.uiSize.scale,
 					0xFFFFFFFF,
 					true
 			);
+
+			currentY += lineSpacing;
 		}
 
 		// Biome
 		if (config.showBiome) {
-			String biome = BiomeHelper.getPlayerBiomeId();
-			int offset = config.showPosition ? (int)(12 * config.uiSize.scale) : 0;
+			String biomeText = String.format(
+					"Biome: %s",
+					BiomeHelper.getPlayerBiomeId()
+			);
+
 			drawScaledText(
 					graphics,
 					minecraft.font,
-					String.format("Biome: %s", biome),
+					biomeText,
 					x,
-					y + offset,
+					currentY,
 					config.uiSize.scale,
 					0xFFFFFFFF,
 					true
 			);
+
+			currentY += lineSpacing;
 		}
+
+		// Dedicated icon row
+		renderLocationIcons(
+				minecraft,
+				graphics,
+				x,
+				currentY,
+				config
+		);
 	}
 
 	private static void renderCenter(Minecraft minecraft, GuiGraphicsExtractor graphics, int screenWidth, int y,
@@ -205,6 +239,54 @@ public class Sp0kHUDClient implements ClientModInitializer {
 			);
 		} finally {
 			graphics.pose().popMatrix();
+		}
+	}
+
+	private static void drawTexture(
+			GuiGraphicsExtractor graphics,
+			Identifier texture,
+			int x,
+			int y,
+			int size
+	) {
+		graphics.blit(
+				texture,
+				x,
+				y,
+				x + size,
+				y + size,
+				0.0F,
+				1.0F,
+				0.0F,
+				1.0F
+		);
+	}
+
+	private static void renderLocationIcons(
+			Minecraft minecraft,
+			GuiGraphicsExtractor graphics,
+			int x,
+			int y,
+			Sp0kHUDConfig config
+	) {
+		int iconSize = Math.round(9 * config.uiSize.scale);
+		int iconGap = Math.round(3 * config.uiSize.scale);
+
+		int currentIconX = x;
+
+		// Slime chunk icon
+		if (config.showSlimeChunkIndicator
+				&& SlimeChunkHelper.isPlayerInSlimeChunk(minecraft)) {
+
+			drawTexture(
+					graphics,
+					SLIME_CHUNK_ICON,
+					currentIconX,
+					y,
+					iconSize
+			);
+
+			currentIconX += iconSize + iconGap;
 		}
 	}
 

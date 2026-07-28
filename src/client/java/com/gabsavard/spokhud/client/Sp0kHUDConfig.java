@@ -51,6 +51,7 @@ public class Sp0kHUDConfig {
     public boolean showLocationInfo = true;
     public boolean showPosition = true;
     public boolean showBiome = true;
+    public boolean showSlimeChunkIndicator = true;
 
     public boolean showDirection = true;
     public boolean showDirectionLines = true;
