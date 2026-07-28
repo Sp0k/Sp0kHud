@@ -32,6 +32,7 @@ It is designed to keep important gameplay information visible in a clean, minima
 - Allows HUD offset customization with `hudX` and `hudY`
 - Hides the custom HUD when the vanilla F3 debug screen is open
 - Moves the equipment HUD down when active status effects are visible to avoid overlap
+- Indicate when the player is in a slime chunk
 
 ## Configuration
 
@@ -47,12 +48,14 @@ The configuration screen is organized into submenus:
 - Location Information submenu
 - Direction submenu
 - Equipment HUD submenu
+- Display the HUD when F3 is open
 
 ### Location Information
 
 - Toggle the full location information display
 - Toggle position display
 - Toggle biome display
+- Toggle slime chunk indicator
 
 ### Direction
 
