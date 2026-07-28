@@ -46,6 +46,8 @@ public class Sp0kHUDConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("spokhud.json");
 
+    public boolean showHudInF3 = false;
+
     public boolean showLocationInfo = true;
     public boolean showPosition = true;
     public boolean showBiome = true;

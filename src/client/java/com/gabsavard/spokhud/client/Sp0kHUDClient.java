@@ -243,7 +243,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 		Sp0kHUDConfig config = Sp0kHUDConfig.get();
 
 		// Hide if F3 is open
-		if (isF3Open(minecraft)) return;
+		if (!config.showHudInF3 && isF3Open(minecraft)) return;
 
 		int screenWidth = minecraft.getWindow().getGuiScaledWidth();
 		int x = config.hudX;

@@ -52,6 +52,31 @@ public class Sp0kHUDConfigScreen extends Screen {
 
     private void initMainMenu(int x, int y) {
         addButton(x, y,
+                "Location Information...",
+                button -> openPage(MenuPage.LOCATION)
+        );
+
+        addSmallButton(x, y + ROW_SPACING,
+                "Direction...",
+                button -> openPage(MenuPage.DIRECTION)
+        );
+
+        addSmallButton(x + (BUTTON_WIDTH / 2) + 3, y + ROW_SPACING,
+                "Equipment HUD...",
+                button -> openPage(MenuPage.EQUIPMENT)
+        );
+
+        addSmallToggle(
+                x,
+                y + ROW_SPACING * 2,
+                "Show in F3",
+                () -> config.showHudInF3,
+                value -> config.showHudInF3 = value
+        );
+
+        addSmallButton(
+                x + (BUTTON_WIDTH / 2) + 3,
+                y + ROW_SPACING * 2,
                 "UI Size: " + config.uiSize.label,
                 button -> {
                     config.uiSize = config.uiSize.next();
@@ -60,24 +85,9 @@ public class Sp0kHUDConfigScreen extends Screen {
                 }
         );
 
-        addButton(x, y + ROW_SPACING,
-                "Location Information...",
-                button -> openPage(MenuPage.LOCATION)
-        );
-
-        addButton(x, y + ROW_SPACING * 2,
-                "Direction...",
-                button -> openPage(MenuPage.DIRECTION)
-        );
-
-        addButton(x, y + ROW_SPACING * 3,
-                "Equipment HUD...",
-                button -> openPage(MenuPage.EQUIPMENT)
-        );
-
         this.addRenderableWidget(new IntSlider(
                 x,
-                y + ROW_SPACING * 4,
+                y + ROW_SPACING * 3,
                 BUTTON_WIDTH,
                 BUTTON_HEIGHT,
                 "HUD X",
@@ -92,7 +102,7 @@ public class Sp0kHUDConfigScreen extends Screen {
 
         this.addRenderableWidget(new IntSlider(
                 x,
-                y + ROW_SPACING * 5,
+                y + ROW_SPACING * 4,
                 BUTTON_WIDTH,
                 BUTTON_HEIGHT,
                 "HUD Y",
@@ -105,7 +115,7 @@ public class Sp0kHUDConfigScreen extends Screen {
                 }
         ));
 
-        addButton(x, y + ROW_SPACING * 7,
+        addButton(x, y + ROW_SPACING * 6,
                 "Done",
                 button -> this.minecraft.setScreen(parent)
         );
@@ -216,6 +226,13 @@ public class Sp0kHUDConfigScreen extends Screen {
         ).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build());
     }
 
+    private void addSmallButton(int x, int y, String text, Button.OnPress onPress) {
+        this.addRenderableWidget(Button.builder(
+                Component.literal(text),
+                onPress
+        ).bounds(x, y, (BUTTON_WIDTH / 2) - 3, BUTTON_HEIGHT).build());
+    }
+
     private void addToggle(
             int x,
             int y,
@@ -233,6 +250,25 @@ public class Sp0kHUDConfigScreen extends Screen {
                     button.setMessage(Component.literal(label + ": " + onOff(newValue)));
                 }
         ).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+    }
+
+    private void addSmallToggle(
+            int x,
+            int y,
+            String label,
+            BooleanSupplier getter,
+            Consumer<Boolean> setter
+    ) {
+        this.addRenderableWidget(Button.builder(
+                Component.literal(label + ": " + onOff(getter.getAsBoolean())),
+                button -> {
+                    boolean newValue = !getter.getAsBoolean();
+                    setter.accept(newValue);
+                    Sp0kHUDConfig.save();
+
+                    button.setMessage(Component.literal(label + ": " + onOff(newValue)));
+                }
+        ).bounds(x, y, (BUTTON_WIDTH / 2) - 3, BUTTON_HEIGHT).build());
     }
 
     private void openPage(MenuPage page) {
