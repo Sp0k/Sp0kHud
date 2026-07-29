@@ -35,6 +35,9 @@ public final class HudUtil {
             else return y;
         }
 
+        if (activeEffectCategories.size() == 2 &&
+                !activeEffectCategories.contains(MobEffectCategory.BENEFICIAL)) return y;
+
         return y + 45;
     }
 }
