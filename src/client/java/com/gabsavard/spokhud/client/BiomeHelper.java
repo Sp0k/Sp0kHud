@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 
-public class BiomeHelper {
+public final class BiomeHelper {
     public static String getPlayerBiomeId() {
         Minecraft minecraft = Minecraft.getInstance();
 

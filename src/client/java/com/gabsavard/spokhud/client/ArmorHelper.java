@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
-public class ArmorHelper {
+public final class ArmorHelper {
     public static ItemStack getHelmet() {
         Minecraft minecraft = Minecraft.getInstance();
 
