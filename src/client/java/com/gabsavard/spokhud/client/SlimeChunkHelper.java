@@ -6,7 +6,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.Random;
 
-public class SlimeChunkHelper {
+public final class SlimeChunkHelper {
     private static final long SLIME_CHUNK_SALT = 987234911L;
 
     private static boolean cacheValid;

@@ -341,7 +341,7 @@ public class Sp0kHUDClient implements ClientModInitializer {
 
 		if (config.showEquipmentDisplay) {
 			// Shift armor icons down when potion effects are displayed.
-			int rightY = !minecraft.player.getActiveEffects().isEmpty() ? y + 20 : y;
+			int rightY = HudUtil.calculateYPos(y, HudUtil.getActiveEffectCategories());
 			renderRightSide(minecraft, graphics, x, screenWidth, rightY, config);
 		}
 	}
