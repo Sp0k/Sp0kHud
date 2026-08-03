@@ -13,7 +13,7 @@ public final class HudUtil {
         ArrayList<MobEffectCategory> effectList = new ArrayList<>();
 
         var player = Minecraft.getInstance().player;
-        if (player != null) return effectList;
+        if (player == null) return effectList;
 
         for (MobEffectInstance instance : player.getActiveEffects()) {
             if (!instance.showIcon()) continue;
